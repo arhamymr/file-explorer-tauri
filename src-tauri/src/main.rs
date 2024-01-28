@@ -29,7 +29,43 @@ fn another_function() -> String {
 #[derive(serde::Serialize)]
 struct Directory {
     name: String,
-    path: PathBuf,
+    mount_point: PathBuf,
+    available_space: String,
+    total_space: String,
+    disk_usage: DiskUsage,
+}
+
+fn bytes_to_gb(bytes: &u64) -> u16 {
+    (bytes / (1e+9 as u64)) as u16
+}
+
+fn bytes_to_mb(bytes: &u64) -> u16 {
+    (bytes / (1e+6 as u64)) as u16
+}
+
+fn format_bytes(bytes: &u64) -> String {
+    let gb = bytes_to_gb(&bytes);
+    let mb = bytes_to_mb(&bytes);
+    match gb {
+        0 => format!("{} MB", mb),
+        _ => format!("{} GB", gb),
+    }
+}
+
+#[derive(serde::Serialize)]
+struct DiskUsage {
+    used: String,
+    percentage: u8,
+}
+
+fn format_disk_usage(available_space: &u64, &total_space: &u64) -> DiskUsage {
+    let used = total_space - available_space;
+    let total = total_space.clone() as f64;
+
+    DiskUsage {
+        used: format_bytes(&used),
+        percentage: ((used as f64 / total as f64) * 100 as f64).floor() as u8,
+    }
 }
 
 #[tauri::command]
@@ -42,6 +78,9 @@ fn get_volumes() -> Vec<Directory> {
     let disks = Disks::new_with_refreshed_list();
 
     for disk in &disks {
+        let available_space = disk.available_space();
+        let total_space = disk.total_space();
+
         volumes.push(Directory {
             name: {
                 let name = disk.name().to_str().unwrap();
@@ -51,7 +90,10 @@ fn get_volumes() -> Vec<Directory> {
                 }
                 .to_string()
             },
-            path: disk.mount_point().to_path_buf(),
+            mount_point: disk.mount_point().to_path_buf(),
+            available_space: format_bytes(&available_space),
+            total_space: format_bytes(&total_space),
+            disk_usage: format_disk_usage(&available_space, &total_space),
         });
     }
     volumes
