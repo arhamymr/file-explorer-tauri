@@ -30,7 +30,7 @@ export default function Volumes() {
   return (
     <Flex gap={1}>
       {volumes.map((volume, idx) => (
-        <Link href={volume.mount_point} key={idx}>
+        <Link href={`/files?path=${volume.mount_point}`} key={idx}>
           <HStack
             px={3}
             py={1}
