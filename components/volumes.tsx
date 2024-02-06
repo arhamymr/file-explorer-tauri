@@ -28,7 +28,7 @@ export default function Volumes() {
   }, []);
 
   return (
-    <Flex gap={1}>
+    <Flex gap={2} flexWrap={'wrap'}>
       {volumes.map((volume, idx) => (
         <Link href={`/files?path=${volume.mount_point}`} key={idx}>
           <HStack
@@ -43,7 +43,9 @@ export default function Volumes() {
           >
             <Image src={'/mac-disk.ico'} alt={volume.name} w={'59px'} />
             <Box pb={1}>
-              <Text fontWeight={500}>{volume.name}</Text>
+              <Text fontWeight={500} width={'200px'}>
+                {volume.name}
+              </Text>
               <Text fontWeight={500} fontSize={'xs'} mb={1}>
                 Usage {volume.disk_usage.used} / {volume.total_space}{' '}
               </Text>

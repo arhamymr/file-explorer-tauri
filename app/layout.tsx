@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Provider>
-          <Box p={6}>{children}</Box>
+          <Box p={3}>{children}</Box>
         </Provider>
       </body>
     </html>
